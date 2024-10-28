@@ -1,11 +1,25 @@
 <?php
+/**
+ * User Model
+ *
+ * Provides Methods to handle user's data.
+ *
+ * Filename:        User.php
+ * Location:        App/Models
+ * Project:         LAS-LARAVEL-MVC-Jokes
+ * Date Created:    28/10/2024
+ *
+ * Author:          Luis Alvarez Suarez <20114831@tafe.wa.edu.au>
+ *
+ */
 
 namespace App\Models;
 
- use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+
 
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -44,5 +58,15 @@ class User extends Authenticatable implements MustVerifyEmail
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+
+     /**
+     * Get the jokes created by an user
+     */
+
+    public function jokes()
+    {
+        return $this->hasMany(Joke::class, 'author_id');
     }
 }
