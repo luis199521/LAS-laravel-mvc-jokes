@@ -80,7 +80,7 @@ class StaticPageController extends Controller
      */
     public function about()
     {
-        //loadView('staticPages/about');
+       
         return view('static.about');
     }
 
