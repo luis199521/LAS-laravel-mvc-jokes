@@ -18,8 +18,34 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
+use App\Http\Controllers\JokeController;
+use App\Http\Controllers\UserController;
+
 class StaticPageController extends Controller
 {
+
+     /*
+     * Show the Enhance Home Page for Authenticated Users.
+     *
+     * @return void
+     */
+
+     public function index(){
+
+
+        $countJoke = new JokeController();
+        $countJokes = $countJoke->numberJokes();
+
+        $countUser = new UserController();
+        $countUsers = $countUser->numberUsers();
+
+
+
+        return view('auth.home', [
+            'totalJokes' => $countJokes,
+            'totalUsers' => $countUsers
+        ]);
+     }
 
     /*
      * Show the home static page when user logs in,  statistics  of number of users and jokes can be seen.

@@ -32,6 +32,12 @@ Route::middleware('auth')->group(function () {
 Route::get('/', [StaticPageController::class, 'home'])
     ->name('static.home');
 
+
+Route::get('/home', [StaticPageController::class, 'index'])
+    ->middleware('auth') 
+    ->name('auth.home');
+
+
 Route::get('/about', [StaticPageController::class, 'about'])
     ->name('static.about');
 
