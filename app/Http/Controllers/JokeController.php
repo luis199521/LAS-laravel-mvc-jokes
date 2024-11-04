@@ -4,13 +4,230 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Joke;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Auth;
+
 class JokeController extends Controller
 {
     public function numberJokes()
     {
-        
-        $totalJokes = Joke::count(); 
 
-        return $totalJokes; 
+        $totalJokes = Joke::count();
+
+        return $totalJokes;
+    }
+
+
+    public function index()
+    {
+
+        $jokes = Joke::all();
+
+        return view('jokes.home', [
+            'jokes' => $jokes
+
+        ]);
+    }
+
+
+    /**
+     * Search users by keywords/location.
+     */
+    public function search(Request $request)
+    {
+        $keywords = $request->input('keywords', '');
+
+
+        $jokes = Joke::where('joke', 'like', "%{$keywords}%")
+            ->orWhere('tags', 'like', "%{$keywords}%")
+            ->orderBy('joke')
+            ->orderBy('tags')
+            ->get();
+
+
+        if (Auth::check()) {
+
+            return view('jokes.home', [
+                'jokes' => $jokes,
+                'keywords' => $keywords,
+            ]);
+        } else {
+
+            return view('jokes.search', [
+                'jokes' => $jokes,
+                'keywords' => $keywords,
+            ]);
+        }
+    }
+
+
+    public function show($id)
+    {
+
+        $joke = Joke::select(
+            'jokes.id as id', 
+            'jokes.joke as joke_title',
+            'jokes.category_id as category',
+            'jokes.tags as tags',
+            'jokes.author_id as author',
+            'users.given_name as author_name',
+            'jokes.created_at as created_at',
+            'jokes.updated_at as updated_at'
+        )
+        ->join('users', 'jokes.author_id', '=', 'users.id') 
+        ->where('jokes.id', $id)
+        ->first();
+
+
+
+        // Check if user exists
+        if (!$joke) {
+            return response()->view('errors.404', ['message' => 'Joke not found'], 404);
+        }
+
+        return view('jokes.show', [
+            'joke' => $joke,
+        ]);
+    }
+
+
+    /**
+     * Show the jokes create form
+     *
+     */
+     public function create()
+    {
+        return view('jokes.create');
+    }
+
+    /**
+     * Store Jokes in database
+     */
+
+     public function store(Request $request)
+     {
+       
+         $allowedFields = ['joke', 'category_id', 'tags', 'author_id'];
+     
+       
+         $validator = Validator::make($request->all(), [
+             'joke' => 'required|string|max:255',
+             'category_id' => 'required|integer',
+             'tags' => 'nullable|string',
+             'author_id' => 'required|integer|exists:users,id',
+         ], [
+             'joke.required' => 'joke  is required.',
+             'category_id.required' => 'category is required.',
+             'author_id.required' => 'Author ID is required.'
+         ]);
+     
+        
+         if ($validator->fails()) {
+             return redirect()->back()
+                 ->withErrors($validator)
+                 ->withInput();
+         }
+     
+         
+         $newJokeData = $request->only($allowedFields);
+         $newJokeData['author_id'] = Auth::id();
+     
+         
+         Joke::create($newJokeData);
+     
+         // Flash success message
+         Session::flash('success', 'Joke created successfully.');
+     
+         
+         return redirect()->route('jokes.home');
+     }
+     
+    /**
+     * Show the user edit form
+     */
+    public function edit($id)
+    {
+        $joke = Joke::find($id);
+    
+        if (!$joke) {
+            abort(404, 'Joke not found');
+        }
+    
+        if (!Auth::user()->can('update', $joke)) {
+            return redirect()->route('jokes.show', $joke->id)->with('error_message', 'You are not authorized to update this joke');
+        }
+    
+        return view('jokes.edit', ['joke' => $joke]);
+    }
+    
+
+
+    /**
+     * Update a user
+     */
+
+
+     public function update(Request $request, $id)
+     {
+         $joke = Joke::find($id);
+     
+         if (!$joke) {
+             return response()->json(['message' => 'Joke not found'], 404);
+         }
+     
+         
+         if (!Auth::user()->can('update', $joke)) {
+             return redirect()->route('jokes.show', $joke->id)
+                 ->with('error_message', 'You are not authorized to update this joke');
+         }
+     
+        
+         $request->validate([
+             'joke' => 'required|string|max:255',
+             'category_id' => 'nullable',
+             'tags' => 'nullable|string',
+         ], [
+             'joke_title.required' => 'Joke title is required',
+         ]);
+     
+        
+         $allowedFields = ['joke', 'category_id', 'tags'];
+         $updateValues = $request->only($allowedFields);
+         $updateValues['updated_at'] = now(); 
+     
+         $joke->update($updateValues);
+     
+         Session::flash('success', 'Joke updated successfully');
+     
+         return redirect()->route('jokes.show', $joke->id);
+     }
+     
+
+
+    /**
+     * Delete a user
+     */
+    public function destroy($id)
+    {
+        $joke = Joke::find($id);
+    
+        if (!$joke) {
+            return response()->json(['message' => 'Joke not found'], 404);
+        }
+    
+        
+        if (!Auth::user()->can('delete', $joke)) {
+            return redirect()->route('jokes.show', $joke->id)
+                ->with('error_message', 'You are not authorized to delete this joke');
+        }
+    
+       
+        $joke->delete();
+    
+        Session::flash('success', 'Joke deleted successfully');
+    
+        return redirect()->route('jokes.home'); 
     }
 }

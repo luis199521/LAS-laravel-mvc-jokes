@@ -18,12 +18,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Permission\Traits\HasRoles;
 
 
 class Joke extends Model
 {
 
     use HasFactory;
+    use HasRoles;
     
     protected $fillable = ['joke', 'category_id', 'tags', 'author_id'];
 

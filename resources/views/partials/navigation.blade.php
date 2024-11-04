@@ -19,10 +19,10 @@
        
             @auth  
                 <p><a href="{{ route('static.home') }}" class="pb-2 px-1 text-text-zinc-700-200 hover:text-black-300 hover:border-b-sky-500">Home</a></p>
-                <p><a href="/jokes" class="pb-2 px-1 text-text-zinc-700-200 hover:text-sky-300 hover:border-b-sky-500">Jokes</a></p>
-                <p><a href="/users" class="pb-2 px-1 text-text-zinc-700-200 hover:text-sky-300 hover:border-b-sky-500">Users</a></p>
+                <p><a href="{{ route('jokes.home') }}" class="pb-2 px-1 text-text-zinc-700-200 hover:text-sky-300 hover:border-b-sky-500">Jokes</a></p>
+                <p><a href="{{ route('users.home') }}" class="pb-2 px-1 text-text-zinc-700-200 hover:text-sky-300 hover:border-b-sky-500">Users</a></p>
            
-                <p class="pb-2 px-1 text-text-zinc-700-200">{{ Auth::user()->name }}</p>
+                <p class="pb-2 px-1 text-text-zinc-700-200">{{ Auth::user()->given_name }}</p>
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
                     <button class="pb-2 px-1 text-text-zinc-700-200 hover:text-sky-300 hover:border-b-sky-500">Logout</button>
