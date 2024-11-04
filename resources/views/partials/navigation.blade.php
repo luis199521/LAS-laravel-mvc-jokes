@@ -31,7 +31,7 @@
                 <p><a href="{{ route('login') }}" class="pb-2 px-1 text-text-zinc-700-200 hover:text-sky-300 hover:border-b-sky-500">Login</a></p>
                 <p><a href="{{ route('register') }}" class="pb-2 px-1 text-text-zinc-700-200 hover:text-sky-300 hover:border-b-sky-500">Register</a></p>
                 <p><a href="{{ route('static.about') }}" class="pb-2 px-1 text-text-zinc-700-200 hover:text-sky-300 hover:border-b-sky-500">About</a></p>
-                <form method="GET" action="/jokes/search" class="block mx-5">
+                <form method="GET" action="/joke/search" class="block mx-5">
                     <input type="text" name="keywords" placeholder="Joke search..." class="w-full md:w-auto px-4 py-2 text-black"/>
                     <button class="bg-sky-500 hover:bg-sky-600 text-black px-4 py-2">Search</button>
                 </form>

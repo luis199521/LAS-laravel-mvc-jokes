@@ -51,7 +51,7 @@
                 @foreach($jokes ?? [] as $joke)
                     <article class="w-full bg-white shadow rounded grid grid-cols-12">
                         <header class="col-span-4 bg-zinc-700 text-zinc-200 text-lg p-4 rounded-l flex-0">
-                            <h4>{{ $joke->joke }} </h4>
+                            <h4>{!! $joke->joke !!} </h4>
                         </header>
                         <section class="col-span-6 flex flex-row py-4 gap-4 text-zinc-600 justify-items-start">
                            

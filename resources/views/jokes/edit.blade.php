@@ -1,4 +1,3 @@
-{{-- resources/views/jokes/edit.blade.php --}}
 
 <x-guest-layout>
     <x-slot name="header">
@@ -21,7 +20,7 @@
             <section>
                 @include('partials.message', ['errors' => $errors ?? []])
 
-                <form method="POST" action="{{ route('jokes.update', $joke->id) }}">
+                <form method="POST" action="{{ route('jokes.update', $joke->id) }}" id="jokeUpdateForm" novalidate>
                     @csrf
                     @method('PUT')
 
@@ -32,7 +31,7 @@
                     <section class="mb-4">
                         <label for="joke_title" class="mt-4 pb-1">Joke Title:</label>
                         <input type="text" placeholder="Joke Title"
-                               id="joke_title" name="joke"
+                               id="joke" name="joke"
                                class="w-full px-4 py-2 border rounded focus:outline-none"
                                value="{{ old('joke', $joke->joke) }}"/>
                     </section>
@@ -69,3 +68,49 @@
     </main>
     @include('partials.footer')
 </x-guest-layout>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+
+
+        // Initialize SimpleMDE
+        var simplemde = new SimpleMDE({
+            element: document.getElementById("joke"),
+            spellChecker: false,
+            autofocus: true,
+            autosave: {
+                enabled: true,
+                uniqueId: "joke",
+                delay: 1000,
+            },
+        });
+
+        // Handle form submission
+        document.getElementById('jokeUpdateForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            var jokeMarkdown = simplemde.value();
+            // Here you would typically send the jokeMarkdown to your server via AJAX
+            console.log(jokeMarkdown);
+            var formData = new FormData(this);
+            formData.set('joke', jokeMarkdown);
+            var jokeId = <?= $joke->id ?>;
+            console.log(formData);
+            console.log(jokeId);
+            $.ajax({
+                url: '/jokes/'+ jokeId,
+                type: 'POST',
+                // https://stackoverflow.com/questions/25390598/append-called-on-an-object-that-does-not-implement-interface-formdata
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    alert('Joke Updated successfully');
+                },
+                error: function(xhr, status, error) {
+                    alert('Error Updating joke:', error);
+                }
+            });
+
+        });
+
+    });
+</script>

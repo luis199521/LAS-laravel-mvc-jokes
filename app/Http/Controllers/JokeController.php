@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
+use Parsedown;
 
 class JokeController extends Controller
 {
@@ -24,12 +25,35 @@ class JokeController extends Controller
     {
 
         $jokes = Joke::all();
+        $parsedown = new Parsedown();
+        foreach ($jokes as $joke) {
+
+            $joke->joke = $parsedown->text($joke->joke);
+        }
 
         return view('jokes.home', [
             'jokes' => $jokes
 
         ]);
     }
+
+
+    public function showRandomJoke()
+{
+   
+    $jokes = Joke::inRandomOrder()->limit(1)->get();
+
+ 
+    $parsedown = new Parsedown();
+
+   
+    foreach ($jokes as $joke) {
+        $joke->joke = $parsedown->text($joke->joke);
+    }
+
+   
+    return $jokes;
+}
 
 
     /**
@@ -45,9 +69,11 @@ class JokeController extends Controller
             ->orderBy('joke')
             ->orderBy('tags')
             ->get();
-
+            $parsedown = new Parsedown();
+            $jokes->joke = $parsedown->text($jokes->joke);
 
         if (Auth::check()) {
+           
 
             return view('jokes.home', [
                 'jokes' => $jokes,
@@ -65,7 +91,6 @@ class JokeController extends Controller
 
     public function show($id)
     {
-
         $joke = Joke::select(
             'jokes.id as id', 
             'jokes.joke as joke_title',
@@ -80,17 +105,18 @@ class JokeController extends Controller
         ->where('jokes.id', $id)
         ->first();
 
-
-
-        // Check if user exists
         if (!$joke) {
             return response()->view('errors.404', ['message' => 'Joke not found'], 404);
         }
-
+    
+        $parsedown = new Parsedown();
+        $joke->joke_title = $parsedown->text($joke->joke_title);
+    
         return view('jokes.show', [
             'joke' => $joke,
         ]);
     }
+    
 
 
     /**

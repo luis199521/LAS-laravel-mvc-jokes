@@ -55,21 +55,11 @@ class StaticPageController extends Controller
     public function home()
     {
 
-        //fetching number of jokes
-       /*$jokes = new JokeController();
-        
-        $countJokes = $jokes->numberJokes();
-
-        //fetching number of users
-        $users = new UserController();
-        
-        $countUsers = $users->numberUsers();
-
-         loadView('/home', [
-            'totalJokes' => $countJokes,
-            'totalUsers'=> $countUsers
-        ]);*/
-        return view('static.home');
+       $jokes = new JokeController();
+       $joke = $jokes->showRandomJoke();
+        return view('static.home',[
+            'jokes' => $joke
+        ]);
     }
 
 

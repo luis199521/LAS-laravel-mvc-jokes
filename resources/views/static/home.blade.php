@@ -44,15 +44,16 @@
                     <header class="-mx-2 bg-zinc-700 text-zinc-200 text-lg p-4 -mt-2 mb-4 rounded-t flex-0">
                         <h4>Time for a Random Joke</h4>
                     </header>
-                    <section class="flex-grow flex flex-col space-y-3 text-zinc-600">
-                        <p>A cowboy butcher decided to relocate his fresh meat shop.</p>
-                        <p>"Sorry Folks. I'm pullin' up steaks."</p>
-                    </section>
-                    <footer class="-mx-2 bg-zinc-100 text-zinc-600 text-sm mt-4 -mb-2 rounded-b flex-0">
-                        <p class="w-full text-right rounded-b hover:text-black px-4 py-2">
-                            Author's Name
-                        </p>
-                    </footer>
+                    @if (!empty($jokes))
+                    @foreach ($jokes as $joke)
+                        <article class="max-w-96 min-w-64 bg-white shadow rounded p-2 flex flex-col">
+                            <header class="-mx-2 bg-zinc-700 text-zinc-200 text-lg p-4 -mt-2 mb-4 rounded-t flex-0">
+                                <h4>{!! $joke->joke!!}</h4> 
+                            </header>
+                        </article>
+                    @endforeach
+                
+                @endif
                 </article>
                 <form action="{{ route('static.home') }}" method="GET">
                     <button class="w-full md:w-auto

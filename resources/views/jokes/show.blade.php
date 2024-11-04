@@ -34,7 +34,7 @@
                 <section class="flex-grow flex flex-row">
                     <section class="grow">
                         <h5 class="text-lg font-bold">Joke:</h5>
-                        <p class="grow text-lg text-zinc-600 mb-4">{{ $joke->joke_title }}</p>
+                        <p class="grow text-lg text-zinc-600 mb-4">{!! $joke->joke_title !!}</p>
 
                         <h5 class="text-lg font-bold">Category:</h5>
                         <p class="grow text-lg text-zinc-600 mb-4">{{ $joke->category ?? 'n/a' }}</p>

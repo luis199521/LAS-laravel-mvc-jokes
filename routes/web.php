@@ -98,8 +98,8 @@ Route::get('/jokes/search', [JokeController::class, 'search'])
 ->name('jokes.search');  
 
 
-/*Route::get('/jokes/search', [JokeController::class, 'search'])
-->name('jokes.search');*/
+Route::get('/joke/search', [JokeController::class, 'search'])
+->name('joke.search');
 
 Route::get('/joke/{id}', [JokeController::class, 'show'])
 ->middleware('auth')  

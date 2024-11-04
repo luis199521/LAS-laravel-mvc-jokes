@@ -19,9 +19,8 @@
                
                 @include('partials.message')
                 
-                
-    
-                <form method="POST" action="{{ route('jokes.store') }}">
+            
+                <form method="POST" action="{{ route('jokes.store') }}" id="jokeCreateForm" novalidate>
                     @csrf
 
                     <h2 class="text-2xl font-bold mb-6 text-left text-gray-500">
@@ -30,7 +29,7 @@
 
                     <section class="mb-4">
                         <label for="Joke" class="mt-4 pb-1">Joke:</label>
-                        <input type="text" id="Joke"
+                        <input type="text" id="joke"
                             name="joke" placeholder="Joke"
                             class="w-full px-4 py-2 border border-b-zinc-300 rounded focus:outline-none"
                             value="{{ old('joke', $joke['joke'] ?? '') }}" required />
@@ -76,3 +75,47 @@
     </main>
     @include('partials.footer')
 </x-guest-layout>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+
+
+        // Initialize SimpleMDE
+        var simplemde = new SimpleMDE({
+            element: document.getElementById("joke"),
+            spellChecker: false,
+            autofocus: true,
+            autosave: {
+                enabled: true,
+                uniqueId: "joke",
+                delay: 1000,
+            },
+        });
+
+        // Handle form submission
+        document.getElementById('jokeCreateForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            var jokeMarkdown = simplemde.value();
+            // Here you would typically send the jokeMarkdown to your server via AJAX
+            console.log(jokeMarkdown);
+            var formData = new FormData(this);
+            formData.set('joke', jokeMarkdown);
+            $.ajax({
+                url: '/jokes/store',
+                type: 'POST',
+                // https://stackoverflow.com/questions/25390598/append-called-on-an-object-that-does-not-implement-interface-formdata
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    alert('Joke saved successfully');
+                },
+                error: function(xhr, status, error) {
+                    alert('Error saving joke:', error);
+                }
+            });
+
+        });
+
+    });
+</script>
+
