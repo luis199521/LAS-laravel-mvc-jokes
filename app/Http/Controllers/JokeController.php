@@ -9,9 +9,13 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use Parsedown;
+use App\Http\Controllers\Controller;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class JokeController extends Controller
 {
+    use AuthorizesRequests;
+
     public function numberJokes()
     {
 
@@ -173,17 +177,11 @@ class JokeController extends Controller
     /**
      * Show the user edit form
      */
-    public function edit($id)
+    public function edit(Joke $joke)
     {
-        $joke = Joke::find($id);
+       
     
-        if (!$joke) {
-            abort(404, 'Joke not found');
-        }
-    
-        if (!Auth::user()->can('update', $joke)) {
-            return redirect()->route('jokes.show', $joke->id)->with('error_message', 'You are not authorized to update this joke');
-        }
+        $this->authorize('update', $joke);
     
         return view('jokes.edit', ['joke' => $joke]);
     }
@@ -195,21 +193,12 @@ class JokeController extends Controller
      */
 
 
-     public function update(Request $request, $id)
+     public function update(Request $request, Joke $joke)
      {
-         $joke = Joke::find($id);
+       
+         $this->authorize('update', $joke);
      
-         if (!$joke) {
-             return response()->json(['message' => 'Joke not found'], 404);
-         }
-     
-         
-         if (!Auth::user()->can('update', $joke)) {
-             return redirect()->route('jokes.show', $joke->id)
-                 ->with('error_message', 'You are not authorized to update this joke');
-         }
-     
-        
+       
          $request->validate([
              'joke' => 'required|string|max:255',
              'category_id' => 'nullable',
@@ -217,15 +206,19 @@ class JokeController extends Controller
          ], [
              'joke_title.required' => 'Joke title is required',
          ]);
-     
-        
+         
+    
          $allowedFields = ['joke', 'category_id', 'tags'];
          $updateValues = $request->only($allowedFields);
          $updateValues['updated_at'] = now(); 
      
+
          $joke->update($updateValues);
+         
      
+       
          Session::flash('success', 'Joke updated successfully');
+        
      
          return redirect()->route('jokes.show', $joke->id);
      }
@@ -235,20 +228,12 @@ class JokeController extends Controller
     /**
      * Delete a user
      */
-    public function destroy($id)
+    public function destroy(Joke $joke)
     {
-        $joke = Joke::find($id);
-    
-        if (!$joke) {
-            return response()->json(['message' => 'Joke not found'], 404);
-        }
-    
-        
-        if (!Auth::user()->can('delete', $joke)) {
-            return redirect()->route('jokes.show', $joke->id)
-                ->with('error_message', 'You are not authorized to delete this joke');
-        }
-    
+       
+       
+        $this->authorize('delete', $joke);
+     
        
         $joke->delete();
     

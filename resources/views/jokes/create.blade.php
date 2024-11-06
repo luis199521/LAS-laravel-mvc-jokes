@@ -108,6 +108,7 @@
                 contentType: false,
                 success: function(response) {
                     alert('Joke saved successfully');
+                    window.location.href = '/jokes/';
                 },
                 error: function(xhr, status, error) {
                     alert('Error saving joke:', error);

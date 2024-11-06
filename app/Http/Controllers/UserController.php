@@ -2,28 +2,40 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+
 
 
 
 class UserController extends Controller
-{
+{   
+    use AuthorizesRequests;
+
     public function index()
     {
-
-        $users = User::all();
-
+        $user = Auth::user();
+        $users = User::where('user_id', $user->id)
+                     ->orWhere('id', $user->id)
+                     ->get();
+    
+        foreach ($users as $user) {
+            $this->authorize('view', $user);
+        }
+    
         return view('users.home', [
             'users' => $users
-
         ]);
     }
-
+    
+    
+    
 
 
     public function numberUsers()
@@ -134,7 +146,7 @@ class UserController extends Controller
         if (!empty($newUserData['password'])) {
             $newUserData['password'] = Hash::make($newUserData['password']);
         }
-
+      
         User::create($newUserData);
 
 
@@ -148,23 +160,12 @@ class UserController extends Controller
      * Show the user edit form
      */
 
-    public function edit($id)
+    public function edit(User $user)
     {
 
-        $user = User::find($id);
-
-
-        if (!$user) {
-            abort(404, 'User not found');
-        }
-
-
-        if (!Auth::user()->can('update', $user)) {
-            return redirect()->route('users.show', $user->id)->with('error_message', 'You are not authorized to update this user');
-        }
-
-
-        return view('users.edit', ['user' => $user]);
+        $this->authorize('update', $user);
+        return view('users.edit', ['user' => 
+        $user]);
     }
 
 
@@ -173,22 +174,9 @@ class UserController extends Controller
      */
 
 
-    public function update(Request $request, $id)
+    public function update(Request $request,  User $user)
     {
-
-        $user = User::find($id);
-
-
-        if (!$user) {
-            return response()->json(['message' => 'User not found'], 404);
-        }
-
-
-        if (!Auth::user()->can('update', $user)) {
-            return redirect()->route('users.show', $user->id)
-                ->with('error_message', 'You are not authorized to update this user');
-        }
-
+        $this->authorize('update', $user);
 
         $request->validate([
             'given_name' => 'required|string',
@@ -227,7 +215,7 @@ class UserController extends Controller
 
         Session::flash('success', 'User updated');
 
-        return redirect()->route('users.show', $id);
+        return redirect()->route('users.show', $user);
     }
 
 
@@ -235,22 +223,10 @@ class UserController extends Controller
      * Delete a user
      */
 
-    public function destroy($id)
+    public function destroy(User $user)
     {
 
-        $user = User::find($id);
-
-
-        if (!$user) {
-            return response()->json(['message' => 'User not found'], 404);
-        }
-
-
-        if (!Auth::user()->can('delete', $user)) {
-            return redirect()->route('users.show', $user->id)
-                ->with('error_message', 'You are not authorized to delete this user');
-        }
-
+        $this->authorize('delete', $user);
 
         $user->delete();
 

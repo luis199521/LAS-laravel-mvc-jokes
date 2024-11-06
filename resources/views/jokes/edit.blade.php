@@ -104,6 +104,7 @@
                 contentType: false,
                 success: function(response) {
                     alert('Joke Updated successfully');
+                    window.location.href = '/jokes/' + jokeId;
                 },
                 error: function(xhr, status, error) {
                     alert('Error Updating joke:', error);

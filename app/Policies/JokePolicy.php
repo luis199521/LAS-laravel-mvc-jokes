@@ -21,7 +21,7 @@ class JokePolicy
      */
     public function view(User $user, Joke $joke): bool
     {
-        //
+        // 
     }
 
     /**

@@ -53,7 +53,6 @@
 
                         <h5 class="text-lg font-bold">Last Update:</h5>
                         <p class="grow text-lg text-zinc-600 mb-6">{{ $user->updated_at ?? 'n/a' }}</p>
-                      
                         @if (auth()->user()->can('update', $user) || auth()->user()->can('delete', $user))
                         <form method="POST" action="{{ route('users.destroy', $user->id) }}"
                               class="border-0 border-t-1 border-zinc-300 text-lg flex flex-row">
