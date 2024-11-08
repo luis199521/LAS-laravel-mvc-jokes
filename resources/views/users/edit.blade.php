@@ -12,9 +12,11 @@
         <article>
             <header class="bg-zinc-700 text-zinc-200 -mx-4 -mt-8 p-8 mb-8 flex">
                 <h1 class="grow text-2xl font-bold">Users - Edit</h1>
+                @can('user add')
                 <p class="text-md flex-0 px-8 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded transition ease-in-out duration-500">
                     <a href="{{ route('users.create') }}">Add User</a>
                 </p>
+            @endcan
             </header>
 
             <section>

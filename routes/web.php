@@ -19,7 +19,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\JokeController;
 
 
-Route::get('/dashboard', function () {
+/*Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
@@ -27,7 +27,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-});
+});*/
 
 
 //Static Endpoints
@@ -46,79 +46,8 @@ Route::get('/about', [StaticPageController::class, 'about'])
 Route::get('/contact', [StaticPageController::class, 'contact'])
     ->name('static.contact');  
  
-/*   
- //User Endpoints   
-
-Route::get('/users', [UserController::class, 'index'])
-    ->middleware('auth', 'verified')  
-    ->name('users.home');   
-
-Route::get('/users/create', [UserController::class, 'create'])
-    ->middleware('auth', 'verified')  
-    ->name('users.create');
-
-Route::post('/users/store', [UserController::class, 'store'])
-->middleware(['auth', 'verified'])  
-    ->name('users.store');       
- 
-Route::get('/users/search', [UserController::class, 'search'])
-->middleware('auth', 'verified')  
-->name('users.search');   
-
-Route::get('/users/{id}', [UserController::class, 'show'])
-->middleware('auth', 'verified')  
-->name('users.show'); 
-
-Route::get('/users/edit/{id}', [UserController::class, 'edit'])
-->middleware('auth', 'verified')  
-->name('users.edit'); 
-
-Route::put('/users/{id}', [UserController::class, 'update'])
-->middleware('auth', 'verified')  
-->name('users.update'); 
-
-Route::delete('/users/{id}', [UserController::class, 'destroy'])
-->middleware('auth', 'verified')  
-->name('users.destroy'); 
-
-//Jokes Endpoints
-
-Route::get('/joke', [JokeController::class, 'index'])
-    ->middleware('auth')  
-    ->name('jokes.home');   
-
-Route::get('/jokes/create', [JokeController::class, 'create'])
-    ->middleware('auth')  
-    ->name('jokes.create');
-
-Route::post('/jokes/store', [JokeController::class, 'store'])
-->middleware(['auth'])  
-    ->name('jokes.store');       
- 
-Route::get('/jokes/search', [JokeController::class, 'search'])
-->middleware('auth')  
-->name('jokes.search');  
-
-
-Route::get('/joke/search', [JokeController::class, 'search'])
-->name('joke.search');
-
-Route::get('/joke/{id}', [JokeController::class, 'show'])
-->middleware('auth')  
-->name('jokes.show'); 
-
-Route::get('/jokes/edit/{id}', [JokeController::class, 'edit'])
-->middleware('auth')  
-->name('jokes.edit'); 
-
-Route::put('/jokes/{id}', [JokeController::class, 'update'])
-->middleware('auth')  
-->name('jokes.update'); 
-
-Route::delete('/jokes/{id}', [JokeController::class, 'destroy'])
-->middleware('auth', 'verified')  
-->name('jokes.destroy'); 
-*/
+    Route::get('/joke/search', [JokeController::class, 'search'])
+    ->name('joke.search');
 
 // User Endpoints
 Route::middleware(['auth', 'verified'])->group(function () {
@@ -164,8 +93,7 @@ Route::middleware('auth')->group(function () {
 });
 
 
-Route::get('/joke/search', [JokeController::class, 'search'])
-->name('joke.search');
+
 
 
 require __DIR__.'/auth.php';

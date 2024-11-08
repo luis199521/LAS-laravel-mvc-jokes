@@ -13,7 +13,7 @@ class JokePolicy
      */
     public function viewAny(User $user): bool
     {
-        //
+        $user->can('joke browse');
     }
 
     /**
@@ -21,7 +21,7 @@ class JokePolicy
      */
     public function view(User $user, Joke $joke): bool
     {
-        // 
+        return $user->can('joke read'); 
     }
 
     /**
@@ -29,7 +29,7 @@ class JokePolicy
      */
     public function create(User $user): bool
     {
-        //
+        return $user->can('joke add');
     }
 
     /**
@@ -37,15 +37,22 @@ class JokePolicy
      */
     public function update(User $user, Joke $joke): bool
     {
-        return $user->id === $joke->author_id;
+        
+        if ($user->hasRole('Client')) {
+            return $user->id === $joke->author_id;
+        }
+    
+       
+        return $user->id === $joke->author_id || $user->can('joke edit');
     }
+    
 
     /**
      * Determine whether the user can delete the model.
      */
     public function delete(User $user, Joke $joke): bool
     {
-        return $user->id === $joke->author_id;
+        return $user->id === $joke->author_id || $user->can('joke delete');
     }
 
     /**

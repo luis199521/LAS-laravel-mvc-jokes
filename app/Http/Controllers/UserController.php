@@ -10,32 +10,33 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Spatie\Permission\Models\Role;
 
 
 
 
 class UserController extends Controller
-{   
+{
     use AuthorizesRequests;
 
     public function index()
     {
         $user = Auth::user();
         $users = User::where('user_id', $user->id)
-                     ->orWhere('id', $user->id)
-                     ->get();
-    
+            ->orWhere('id', $user->id)
+            ->get();
+
         foreach ($users as $user) {
             $this->authorize('view', $user);
         }
-    
+
         return view('users.home', [
             'users' => $users
         ]);
     }
-    
-    
-    
+
+
+
 
 
     public function numberUsers()
@@ -102,7 +103,10 @@ class UserController extends Controller
      */
     public function create()
     {
-        return view('users.create');
+        $roles = Role::all();
+        return view('users.create', [
+            'roles' => $roles
+        ]);
     }
 
     /**
@@ -111,13 +115,13 @@ class UserController extends Controller
 
     public function store(Request $request)
     {
-
         $allowedFields = ['nickname', 'given_name', 'family_name', 'email', 'password', 'password_confirmation'];
 
         $validator = Validator::make($request->all(), [
             'given_name' => 'required|string',
             'family_name' => 'required|string',
             'email' => 'required|email',
+            'role' => 'required|string|exists:roles,name',
             'password' => 'nullable|string|min:8|confirmed',
         ], [
             'given_name.required' => ' given name is required.',
@@ -126,18 +130,14 @@ class UserController extends Controller
             'password.min' => 'password must be at least 8 characters.',
         ]);
 
-
         if ($validator->fails()) {
             return redirect()->back()
                 ->withErrors($validator)
                 ->withInput();
         }
 
-
         $newUserData = $request->only($allowedFields);
         $newUserData['user_id'] = Auth::id();
-
-
 
         if (empty($newUserData['nickname'])) {
             $newUserData['nickname'] = $newUserData['given_name'];
@@ -146,15 +146,34 @@ class UserController extends Controller
         if (!empty($newUserData['password'])) {
             $newUserData['password'] = Hash::make($newUserData['password']);
         }
-      
-        User::create($newUserData);
 
+        
+        $newUser = new User($newUserData);
+
+    
+        $role = Role::findByName($request->input('role'), 'web');
+
+        // Can current user create a Admin user?
+        if (!$this->authorize('create', [$newUser])) {
+            return redirect()->back()
+                ->withErrors(['role' => 'Administrators are not allowed to create users with the Administrator role.'])
+                ->withInput();
+        }
+
+    
+        $user = User::create($newUserData);
+
+   
+        $user->assignRole($role);
 
         Session::flash('success', 'User created.');
 
-
         return redirect()->route('users.home');
     }
+
+
+
+
 
     /**
      * Show the user edit form
@@ -164,7 +183,7 @@ class UserController extends Controller
     {
 
         $this->authorize('update', $user);
-        return view('users.edit', ['user' => 
+        return view('users.edit', ['user' =>
         $user]);
     }
 
@@ -173,51 +192,45 @@ class UserController extends Controller
      * Update a user
      */
 
-
-    public function update(Request $request,  User $user)
+    public function update(Request $request, User $user)
     {
-        $this->authorize('update', $user);
+        if (!$this->authorize('update', $user)) {
+            return redirect()->back()
+                ->withErrors(['role' => 'Administrators are not allowed to update other administrators.'])
+                ->withInput();
+        }
 
         $request->validate([
             'given_name' => 'required|string',
             'family_name' => 'required|string',
             'nickname' => 'nullable|string',
             'email' => 'required|email',
-            'user_password' => 'nullable|string|min:6|confirmed',
+            'password' => 'nullable|string|min:6|confirmed',
         ], [
             'given_name.required' => 'Given name is required',
             'family_name.required' => 'Family name is required',
-            'user_password.min' => 'Password must be at least 6 characters',
-            'user_password.confirmed' => 'Passwords do not match',
+            'password.min' => 'Password must be at least 6 characters',
+            'password.confirmed' => 'Passwords do not match',
         ]);
 
-
         $allowedFields = ['nickname', 'given_name', 'family_name', 'email'];
-
         $updateValues = $request->only($allowedFields);
-
 
         if (empty($updateValues['nickname'])) {
             $updateValues['nickname'] = $updateValues['given_name'];
         }
 
-
-        if ($request->user_password) {
+        if ($request->password) {
             $updateValues['password'] = Hash::make($request->user_password);
         }
 
-
         $updateValues['updated_at'] = now();
-
-
         $user->update($updateValues);
-
+        $user->syncRoles($request->role);
 
         Session::flash('success', 'User updated');
-
         return redirect()->route('users.show', $user);
     }
-
 
     /**
      * Delete a user
@@ -225,13 +238,14 @@ class UserController extends Controller
 
     public function destroy(User $user)
     {
-
-        $this->authorize('delete', $user);
+        if (!$this->authorize('delete', $user)) {
+            return redirect()->back()
+                ->withErrors(['role' => 'Administrators are not allowed to delete other administrators.'])
+                ->withInput();
+        }
 
         $user->delete();
-
         Session::flash('success', 'User deleted successfully');
-
         return redirect()->route('users.home');
     }
 }

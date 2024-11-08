@@ -74,7 +74,10 @@ class JokeController extends Controller
             ->orderBy('tags')
             ->get();
             $parsedown = new Parsedown();
-            $jokes->joke = $parsedown->text($jokes->joke);
+            foreach ($jokes as $joke)
+             { 
+                $joke->joke = $parsedown->text($joke->joke);
+             }
 
         if (Auth::check()) {
            
@@ -84,7 +87,7 @@ class JokeController extends Controller
                 'keywords' => $keywords,
             ]);
         } else {
-
+          
             return view('jokes.search', [
                 'jokes' => $jokes,
                 'keywords' => $keywords,
@@ -167,7 +170,7 @@ class JokeController extends Controller
          
          Joke::create($newJokeData);
      
-         // Flash success message
+        
          Session::flash('success', 'Joke created successfully.');
      
          

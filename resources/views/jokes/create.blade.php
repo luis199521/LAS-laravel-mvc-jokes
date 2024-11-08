@@ -10,16 +10,16 @@
         <article>
             <header class="bg-zinc-700 text-zinc-200 -mx-4 -mt-8 p-8 mb-8 flex">
                 <h1 class="grow text-2xl font-bold">Jokes - Add</h1>
-                <p class="text-md flex-0 px-8 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded transition ease-in-out duration-500">
-                    <a href="{{ route('jokes.create') }}">Add joke</a>
-                </p>
+                @can('joke add')
+                    <p class="text-md flex-0 px-8 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded transition ease-in-out duration-500">
+                        <a href="{{ route('jokes.create') }}">Add joke</a>
+                    </p>
+                @endcan
             </header>
 
             <section>
-               
                 @include('partials.message')
                 
-            
                 <form method="POST" action="{{ route('jokes.store') }}" id="jokeCreateForm" novalidate>
                     @csrf
 
@@ -59,10 +59,12 @@
                                value="{{ auth()->user()->id ?? '' }}" required />
                     </section>
 
-                    <button type="submit"
-                        class="w-full bg-green-500 hover:bg-green-600 text-white px-4 py-2 my-3 rounded focus:outline-none">
-                        Save
-                    </button>
+                    @can('joke add')
+                        <button type="submit"
+                            class="w-full bg-green-500 hover:bg-green-600 text-white px-4 py-2 my-3 rounded focus:outline-none">
+                            Save
+                        </button>
+                    @endcan
 
                     <a href="{{ route('jokes.home') }}"
                         class="block text-center w-full bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded focus:outline-none">
@@ -75,6 +77,7 @@
     </main>
     @include('partials.footer')
 </x-guest-layout>
+
 <script>
     document.addEventListener("DOMContentLoaded", function() {
 

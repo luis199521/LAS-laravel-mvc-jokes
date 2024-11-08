@@ -12,24 +12,24 @@
             <header class="bg-zinc-700 text-zinc-200 -mx-4 -mt-8 p-8 mb-8 flex">
                 <h1 class="grow text-2xl font-bold">Joke - Detail</h1>
 
-                <p class="text-md flex-0 px-8 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded transition ease-in-out duration-500">
-                    <a href="{{ route('jokes.create') }}">Add Joke</a>
-                </p>
+                @can('joke add')
+                    <p class="text-md flex-0 px-8 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded transition ease-in-out duration-500">
+                        <a href="{{ route('jokes.create') }}">Add Joke</a>
+                    </p>
+                @endcan
 
-                <form method="GET" action="{{ route('jokes.search') }}" class="block mx-5">
-                    <input type="text" name="keywords" placeholder="Search jokes..."
-                           class="w-full md:w-auto px-4 py-2 focus:outline-none"/>
-                    <button class="w-full md:w-auto
-                               bg-sky-500 hover:bg-sky-600
-                               text-white
-                               px-4 py-2
-                               focus:outline-none transition ease-in-out duration-500">
-                        <i class="fa fa-search"></i> Search
-                    </button>
-                </form>
+                @can('joke browse')
+                    <form method="GET" action="{{ route('jokes.search') }}" class="block mx-5">
+                        <input type="text" name="keywords" placeholder="Search jokes..."
+                               class="w-full md:w-auto px-4 py-2 focus:outline-none"/>
+                        <button class="w-full md:w-auto bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 focus:outline-none transition ease-in-out duration-500">
+                            <i class="fa fa-search"></i> Search
+                        </button>
+                    </form>
+                @endcan
             </header>
 
-            @include('partials.message') 
+            @include('partials.message')
             <section class="w-1/2 mx-auto bg-white shadow rounded p-4 flex flex-col">
                 <section class="flex-grow flex flex-row">
                     <section class="grow">
@@ -51,25 +51,27 @@
                         <h5 class="text-lg font-bold">Author:</h5>
                         <p class="grow text-lg text-zinc-600 mb-6">{{ $joke->author ?? 'n/a' }}</p>
                       
-                        
-                        @if ($joke->author === auth()->user()->id)
+                        @if (auth()->user()->can('joke edit', $joke) || auth()->user()->can('joke delete', $joke))
                         <form method="POST" action="{{ route('jokes.destroy', $joke->id) }}"
                               class="border-0 border-t-1 border-zinc-300 text-lg flex flex-row">
                             @csrf
                             @method('DELETE')
-                            <a href="{{ route('jokes.edit', $joke->id) }}"
-                               class="px-16 py-2 bg-sky-500 hover:bg-sky-600 text-white rounded transition ease-in-out duration-500">
-                                Edit
-                            </a>
-                    
-                            <button type="submit"
-                                    class="ml-8 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded transition ease-in-out duration-500">
-                                Delete
-                            </button>
+                            
+                            @can('joke edit', $joke)
+                                <a href="{{ route('jokes.edit', $joke->id) }}"
+                                   class="px-16 py-2 bg-sky-500 hover:bg-sky-600 text-white rounded transition ease-in-out duration-500">
+                                    Edit
+                                </a>
+                            @endcan
+                            
+                            @can('joke delete', $joke)
+                                <button type="submit"
+                                        class="ml-8 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded transition ease-in-out duration-500">
+                                    Delete
+                                </button>
+                            @endcan
                         </form>
-                        @else
-   
-                    @endif
+                        @endif
                     </section>
 
                     <img class="object-cover"
