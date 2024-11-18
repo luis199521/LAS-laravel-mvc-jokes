@@ -51,6 +51,7 @@ Route::get('/contact', [StaticPageController::class, 'contact'])
 
 // User Endpoints
 Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/users/trashed', [UserController::class, 'trashed'])->name('users.trashed');
     Route::get('/users', [UserController::class, 'index'])->name('users.home');
     Route::get('/users/create', [UserController::class, 'create'])->name('users.create');
     Route::post('/users/store', [UserController::class, 'store'])->name('users.store');
@@ -66,13 +67,19 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy')
         ->middleware('can:delete,user');
-
+        Route::post('/users/restore/{id}', [UserController::class, 'restore'])->name('users.restore');
+        Route::delete('/users/forceDelete/{id}', [UserController::class, 'forceDelete'])->name('users.forceDelete');
 
 });
 
 
+
+
 // Joke Endpoints
 Route::middleware('auth')->group(function () {
+    Route::get('/jokes/trashed', [JokeController::class, 'trashed'])->name('jokes.trashed');
+    Route::post('/jokes/restore/{id}', [JokeController::class, 'restore'])->name('jokes.restore');
+    Route::delete('/jokes/forceDelete/{id}', [JokeController::class, 'forceDelete'])->name('jokes.forceDelete');
     Route::get('/jokes', [JokeController::class, 'index'])->name('jokes.home');
     Route::get('/jokes/create', [JokeController::class, 'create'])->name('jokes.create');
     Route::post('/jokes/store', [JokeController::class, 'store'])->name('jokes.store');
@@ -82,14 +89,16 @@ Route::middleware('auth')->group(function () {
     Route::get('/jokes/edit/{joke}', [JokeController::class, 'edit'])->name('jokes.edit')
         ->middleware('can:update,joke');
 
-
         Route::put('/jokes/{joke}', [JokeController::class, 'update'])
         ->name('jokes.update')
         ->middleware('can:update,joke');
     
-
     Route::delete('/jokes/{joke}', [JokeController::class, 'destroy'])->name('jokes.destroy')
         ->middleware('can:delete,joke');
+
+
+   
+             
 });
 
 

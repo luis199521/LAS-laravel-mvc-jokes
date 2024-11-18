@@ -1,5 +1,19 @@
 <?php
 
+/**
+ * Joke Management Controller
+ *
+ * Provides access to Jokes pages.
+ * 
+ * Filename:        JokeController.php
+ * Location:        /App/Http/Controllers
+ * Project:         LAS-Laravel-mvc-jokes
+ * Date Created:    29/09/2024
+ *
+ * Author:          Luis Alvarez <20114831@tafe.wa.edu.au>
+ *
+ */
+
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
@@ -15,6 +29,10 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 class JokeController extends Controller
 {
     use AuthorizesRequests;
+
+     /**
+     * Search users by keywords/location.
+     */
 
     public function numberJokes()
     {
@@ -43,21 +61,21 @@ class JokeController extends Controller
 
 
     public function showRandomJoke()
-{
-   
-    $jokes = Joke::inRandomOrder()->limit(1)->get();
+    {
 
- 
-    $parsedown = new Parsedown();
+        $jokes = Joke::inRandomOrder()->limit(1)->get();
 
-   
-    foreach ($jokes as $joke) {
-        $joke->joke = $parsedown->text($joke->joke);
+
+        $parsedown = new Parsedown();
+
+
+        foreach ($jokes as $joke) {
+            $joke->joke = $parsedown->text($joke->joke);
+        }
+
+
+        return $jokes;
     }
-
-   
-    return $jokes;
-}
 
 
     /**
@@ -73,21 +91,20 @@ class JokeController extends Controller
             ->orderBy('joke')
             ->orderBy('tags')
             ->get();
-            $parsedown = new Parsedown();
-            foreach ($jokes as $joke)
-             { 
-                $joke->joke = $parsedown->text($joke->joke);
-             }
+        $parsedown = new Parsedown();
+        foreach ($jokes as $joke) {
+            $joke->joke = $parsedown->text($joke->joke);
+        }
 
         if (Auth::check()) {
-           
+
 
             return view('jokes.home', [
                 'jokes' => $jokes,
                 'keywords' => $keywords,
             ]);
         } else {
-          
+
             return view('jokes.search', [
                 'jokes' => $jokes,
                 'keywords' => $keywords,
@@ -99,7 +116,7 @@ class JokeController extends Controller
     public function show($id)
     {
         $joke = Joke::select(
-            'jokes.id as id', 
+            'jokes.id as id',
             'jokes.joke as joke_title',
             'jokes.category_id as category',
             'jokes.tags as tags',
@@ -108,29 +125,29 @@ class JokeController extends Controller
             'jokes.created_at as created_at',
             'jokes.updated_at as updated_at'
         )
-        ->join('users', 'jokes.author_id', '=', 'users.id') 
-        ->where('jokes.id', $id)
-        ->first();
+            ->join('users', 'jokes.author_id', '=', 'users.id')
+            ->where('jokes.id', $id)
+            ->first();
 
         if (!$joke) {
             return response()->view('errors.404', ['message' => 'Joke not found'], 404);
         }
-    
+
         $parsedown = new Parsedown();
         $joke->joke_title = $parsedown->text($joke->joke_title);
-    
+
         return view('jokes.show', [
             'joke' => $joke,
         ]);
     }
-    
+
 
 
     /**
      * Show the jokes create form
      *
      */
-     public function create()
+    public function create()
     {
         return view('jokes.create');
     }
@@ -139,56 +156,56 @@ class JokeController extends Controller
      * Store Jokes in database
      */
 
-     public function store(Request $request)
-     {
-       
-         $allowedFields = ['joke', 'category_id', 'tags', 'author_id'];
-     
-       
-         $validator = Validator::make($request->all(), [
-             'joke' => 'required|string|max:255',
-             'category_id' => 'required|integer',
-             'tags' => 'nullable|string',
-             'author_id' => 'required|integer|exists:users,id',
-         ], [
-             'joke.required' => 'joke  is required.',
-             'category_id.required' => 'category is required.',
-             'author_id.required' => 'Author ID is required.'
-         ]);
-     
-        
-         if ($validator->fails()) {
-             return redirect()->back()
-                 ->withErrors($validator)
-                 ->withInput();
-         }
-     
-         
-         $newJokeData = $request->only($allowedFields);
-         $newJokeData['author_id'] = Auth::id();
-     
-         
-         Joke::create($newJokeData);
-     
-        
-         Session::flash('success', 'Joke created successfully.');
-     
-         
-         return redirect()->route('jokes.home');
-     }
-     
+    public function store(Request $request)
+    {
+
+        $allowedFields = ['joke', 'category_id', 'tags', 'author_id'];
+
+
+        $validator = Validator::make($request->all(), [
+            'joke' => 'required|string|max:255',
+            'category_id' => 'required|integer',
+            'tags' => 'nullable|string',
+            'author_id' => 'required|integer|exists:users,id',
+        ], [
+            'joke.required' => 'joke  is required.',
+            'category_id.required' => 'category is required.',
+            'author_id.required' => 'Author ID is required.'
+        ]);
+
+
+        if ($validator->fails()) {
+            return redirect()->back()
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+
+        $newJokeData = $request->only($allowedFields);
+        $newJokeData['author_id'] = Auth::id();
+
+
+        Joke::create($newJokeData);
+
+
+        Session::flash('success', 'Joke created successfully.');
+
+
+        return redirect()->route('jokes.home');
+    }
+
     /**
      * Show the user edit form
      */
     public function edit(Joke $joke)
     {
-       
-    
+
+
         $this->authorize('update', $joke);
-    
+
         return view('jokes.edit', ['joke' => $joke]);
     }
-    
+
 
 
     /**
@@ -196,36 +213,36 @@ class JokeController extends Controller
      */
 
 
-     public function update(Request $request, Joke $joke)
-     {
-       
-         $this->authorize('update', $joke);
-     
-       
-         $request->validate([
-             'joke' => 'required|string|max:255',
-             'category_id' => 'nullable',
-             'tags' => 'nullable|string',
-         ], [
-             'joke_title.required' => 'Joke title is required',
-         ]);
-         
-    
-         $allowedFields = ['joke', 'category_id', 'tags'];
-         $updateValues = $request->only($allowedFields);
-         $updateValues['updated_at'] = now(); 
-     
+    public function update(Request $request, Joke $joke)
+    {
 
-         $joke->update($updateValues);
-         
-     
-       
-         Session::flash('success', 'Joke updated successfully');
-        
-     
-         return redirect()->route('jokes.show', $joke->id);
-     }
-     
+        $this->authorize('update', $joke);
+
+
+        $request->validate([
+            'joke' => 'required|string|max:255',
+            'category_id' => 'nullable',
+            'tags' => 'nullable|string',
+        ], [
+            'joke_title.required' => 'Joke title is required',
+        ]);
+
+
+        $allowedFields = ['joke', 'category_id', 'tags'];
+        $updateValues = $request->only($allowedFields);
+        $updateValues['updated_at'] = now();
+
+
+        $joke->update($updateValues);
+
+
+
+        Session::flash('success', 'Joke updated successfully');
+
+
+        return redirect()->route('jokes.show', $joke->id);
+    }
+
 
 
     /**
@@ -233,15 +250,49 @@ class JokeController extends Controller
      */
     public function destroy(Joke $joke)
     {
-       
-       
+
+
         $this->authorize('delete', $joke);
-     
-       
+
+
         $joke->delete();
-    
+
         Session::flash('success', 'Joke deleted successfully');
-    
-        return redirect()->route('jokes.home'); 
+
+        return redirect()->route('jokes.home');
     }
+
+
+    public function trashed()
+    {
+
+        $jokes = Joke::onlyTrashed()->get();
+
+        return view('jokes.trashed', ['jokes' => $jokes]);
+    }
+
+
+
+    public function restore($id)
+    {
+        $joke = Joke::withTrashed()->findOrFail($id);
+        $this->authorize('restore', $joke);
+        $joke->restore();
+    
+        Session::flash('success', 'Joke restored successfully.');
+        return redirect()->route('jokes.home');
+    }
+    
+
+    public function forceDelete($id)
+    {
+        $joke = Joke::withTrashed()->findOrFail($id);
+        $this->authorize('forceDelete', $joke);
+    
+        $joke->forceDelete();
+    
+        Session::flash('success', 'Joke permanently deleted.');
+        return redirect()->route('jokes.trashed');
+    }
+    
 }

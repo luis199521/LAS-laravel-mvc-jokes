@@ -19,6 +19,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Permission\Traits\HasRoles;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 
 class Joke extends Model
@@ -26,6 +27,7 @@ class Joke extends Model
 
     use HasFactory;
     use HasRoles;
+    use SoftDeletes;
     
     protected $fillable = ['joke', 'category_id', 'tags', 'author_id'];
 

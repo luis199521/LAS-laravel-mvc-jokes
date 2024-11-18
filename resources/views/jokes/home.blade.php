@@ -38,6 +38,7 @@
                         </button>
                     </form>
                 @endcan
+                <p><a href="{{ route('jokes.trashed') }}" class="pb-2 px-1 text-text-zinc-700-200 hover:text-sky-300 hover:border-b-sky-500">Recycle Bin</a></p>
             </header>
 
             <section class="text-xl text-zinc-500 my-8">

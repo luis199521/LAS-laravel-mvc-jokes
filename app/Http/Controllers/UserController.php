@@ -21,20 +21,28 @@ class UserController extends Controller
 
     public function index()
     {
-        $user = Auth::user();
-        $users = User::where('user_id', $user->id)
-            ->orWhere('id', $user->id)
-            ->get();
-
+        $currentUser = Auth::user();
+        
+        // Obtener todos los usuarios si el usuario actual es superusuario o administrador
+        if ($currentUser->hasRole(['Superuser', 'Administrator'])) {
+            $users = User::all();
+        } else {
+            // Obtener solo los usuarios relacionados con el usuario actual
+            $users = User::where('user_id', $currentUser->id)
+                ->orWhere('id', $currentUser->id)
+                ->get();
+        }
+    
+        // Autorizar la vista de cada usuario obtenido
         foreach ($users as $user) {
             $this->authorize('view', $user);
         }
-
+    
         return view('users.home', [
             'users' => $users
         ]);
     }
-
+    
 
 
 
@@ -147,10 +155,10 @@ class UserController extends Controller
             $newUserData['password'] = Hash::make($newUserData['password']);
         }
 
-        
+
         $newUser = new User($newUserData);
 
-    
+
         $role = Role::findByName($request->input('role'), 'web');
 
         // Can current user create a Admin user?
@@ -160,10 +168,10 @@ class UserController extends Controller
                 ->withInput();
         }
 
-    
+
         $user = User::create($newUserData);
 
-   
+
         $user->assignRole($role);
 
         Session::flash('success', 'User created.');
@@ -179,59 +187,66 @@ class UserController extends Controller
      * Show the user edit form
      */
 
-    public function edit(User $user)
-    {
-
-        $this->authorize('update', $user);
-        return view('users.edit', ['user' =>
-        $user]);
-    }
+     public function edit(User $user)
+     {
+         $this->authorize('update', $user);
+     
+         $roles = Role::where('name', '!=', 'Superuser')->get();
+     
+         return view('users.edit', [
+             'user' => $user,
+             'roles' => $roles
+         ]);
+     }
+     
 
 
     /**
      * Update a user
      */
 
-    public function update(Request $request, User $user)
-    {
-        if (!$this->authorize('update', $user)) {
-            return redirect()->back()
-                ->withErrors(['role' => 'Administrators are not allowed to update other administrators.'])
-                ->withInput();
-        }
-
-        $request->validate([
-            'given_name' => 'required|string',
-            'family_name' => 'required|string',
-            'nickname' => 'nullable|string',
-            'email' => 'required|email',
-            'password' => 'nullable|string|min:6|confirmed',
-        ], [
-            'given_name.required' => 'Given name is required',
-            'family_name.required' => 'Family name is required',
-            'password.min' => 'Password must be at least 6 characters',
-            'password.confirmed' => 'Passwords do not match',
-        ]);
-
-        $allowedFields = ['nickname', 'given_name', 'family_name', 'email'];
-        $updateValues = $request->only($allowedFields);
-
-        if (empty($updateValues['nickname'])) {
-            $updateValues['nickname'] = $updateValues['given_name'];
-        }
-
-        if ($request->password) {
-            $updateValues['password'] = Hash::make($request->user_password);
-        }
-
-        $updateValues['updated_at'] = now();
-        $user->update($updateValues);
-        $user->syncRoles($request->role);
-
-        Session::flash('success', 'User updated');
-        return redirect()->route('users.show', $user);
-    }
-
+     public function update(Request $request, User $user)
+     {
+         $this->authorize('update', $user);
+     
+         $request->validate([
+             'given_name' => 'required|string',
+             'family_name' => 'required|string',
+             'nickname' => 'nullable|string',
+             'email' => 'required|email',
+             'password' => 'nullable|string|min:6|confirmed',
+             'role' => 'required|string'
+         ], [
+             'given_name.required' => 'Given name is required',
+             'family_name.required' => 'Family name is required',
+             'password.min' => 'Password must be at least 6 characters',
+             'password.confirmed' => 'Passwords do not match',
+             'role.required' => 'Role is required'
+         ]);
+     
+         $allowedFields = ['nickname', 'given_name', 'family_name', 'email'];
+         $updateValues = $request->only($allowedFields);
+     
+         if (empty($updateValues['nickname'])) {
+             $updateValues['nickname'] = $updateValues['given_name'];
+         }
+     
+         if ($request->password) {
+             $updateValues['password'] = Hash::make($request->password);
+         }
+     
+         $updateValues['updated_at'] = now();
+         $user->update($updateValues);
+     
+        
+         if ($request->role !== 'Superuser') {
+             $user->syncRoles($request->role);
+         }
+     
+         Session::flash('success', 'User updated successfully.');
+         return redirect()->route('users.show', $user);
+     }
+     
     /**
      * Delete a user
      */
@@ -247,5 +262,31 @@ class UserController extends Controller
         $user->delete();
         Session::flash('success', 'User deleted successfully');
         return redirect()->route('users.home');
+    }
+
+
+    public function trashed()
+    {
+        $users = User::onlyTrashed()->get();
+        return view('users.trashed', ['users' => $users]);
+    }
+
+    public function forceDelete($id)
+    {
+        $user = User::withTrashed()->findOrFail($id);
+        $this->authorize('forceDelete', $user);
+
+        $user->forceDelete();
+        return redirect()->route('users.home')->with('success', 'User permanently deleted successfully.');
+    }
+
+
+    public function restore($id)
+    {
+        $user = User::withTrashed()->findOrFail($id);
+        $this->authorize('restore', $user);
+
+        $user->restore();
+        return redirect()->route('users.home')->with('success', 'User restored successfully.');
     }
 }

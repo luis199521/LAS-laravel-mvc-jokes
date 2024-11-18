@@ -1,5 +1,3 @@
-{{-- resources/views/users/edit.blade.php --}}
-
 <x-guest-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl leading-tight">
@@ -13,15 +11,13 @@
             <header class="bg-zinc-700 text-zinc-200 -mx-4 -mt-8 p-8 mb-8 flex">
                 <h1 class="grow text-2xl font-bold">Users - Edit</h1>
                 @can('user add')
-                <p class="text-md flex-0 px-8 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded transition ease-in-out duration-500">
-                    <a href="{{ route('users.create') }}">Add User</a>
-                </p>
-            @endcan
+                    <p class="text-md flex-0 px-8 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded transition ease-in-out duration-500">
+                        <a href="{{ route('users.create') }}">Add User</a>
+                    </p>
+                @endcan
             </header>
 
             <section>
-
-             
                 @include('partials.message', ['errors' => $errors ?? []])
 
                 <form method="POST" action="{{ route('users.update', $user->id) }}">
@@ -78,6 +74,17 @@
                                class="w-full px-4 py-2 border border-b-zinc-300 rounded focus:outline-none"/>
                     </section>
 
+                    <section class="mb-4">
+                        <label for="Role" class="mt-4 pb-1">Role:</label>
+                        <select id="Role" name="role" class="w-full px-4 py-2 border rounded focus:outline-none">
+                            @foreach($roles as $role)
+                                <option value="{{ $role->name }}" {{ old('role', $user->roles->first()->name) == $role->name ? 'selected' : '' }}>
+                                    {{ ucfirst($role->name) }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </section>
+
                     <button type="submit"
                             class="w-full bg-green-500 hover:bg-green-600 text-white px-4 py-2 my-3
                                rounded focus:outline-none">
@@ -89,11 +96,8 @@
                       focus:outline-none">
                         Cancel
                     </a>
-
                 </form>
-
             </section>
-
         </article>
     </main>
     @include('partials.footer')
