@@ -1,5 +1,26 @@
 <?php
 
+/**
+ * Assessment Title: Portfolio Part 3
+ * Cluster:          SaaS: Part 1 – Front End Development 
+ * Qualification:    ICT50220 Diploma of Information Technology (Advanced Programming)
+ * Name:             Luis Alvarez Suarez
+ * Student ID:       20114831
+ * Year/Semester:    2024/S2
+ *
+ * Jokes policy
+ *
+ * Provides Methods to handle Jokes policy.
+ *
+ * Filename:        JokePolicy.php
+ * Location:        App/Policies
+ * Project:         LAS-LARAVEL-MVC-Jokes
+ * Date Created:    28/10/2024
+ *
+ * Author:          Luis Alvarez Suarez <20114831@tafe.wa.edu.au>
+ *
+ */
+
 namespace App\Policies;
 
 use App\Models\Joke;
@@ -9,7 +30,7 @@ use Illuminate\Auth\Access\Response;
 class JokePolicy
 {
     /**
-     * Determine whether the user can view any models.
+     * Determine which  user can view any jokes.
      */
     public function viewAny(User $user): bool
     {
@@ -17,7 +38,7 @@ class JokePolicy
     }
 
     /**
-     * Determine whether the user can view the model.
+     * Determine which user can view jokes.
      */
     public function view(User $user, Joke $joke): bool
     {
@@ -25,7 +46,7 @@ class JokePolicy
     }
 
     /**
-     * Determine whether the user can create models.
+     * Determine which user can create jokes.
      */
     public function create(User $user): bool
     {
@@ -33,7 +54,7 @@ class JokePolicy
     }
 
     /**
-     * Determine whether the user can update the model.
+     * Determine which  user can update a joke.
      */
     public function update(User $user, Joke $joke): bool
     {
@@ -48,7 +69,7 @@ class JokePolicy
 
 
     /**
-     * Determine whether the user can delete the model.
+     * Determine which  user can delete a joke.
      */
     public function delete(User $user, Joke $joke): bool
     {
@@ -56,9 +77,9 @@ class JokePolicy
             return $user->id === $joke->author_id;
         }
 
-        if ($user->hasRole('Staff')) { 
-            // Permitir que el personal elimine chistes solo si ellos mismos son los creadores 
-            return $user->id === $joke->author_id; 
+        if ($user->hasRole('Staff')) {
+
+            return $user->id === $joke->author_id;
         }
 
         return $user->id === $joke->author_id || $user->can('joke delete');
@@ -67,7 +88,7 @@ class JokePolicy
 
 
     /**
-     * Determine whether the user can restore the model.
+     * Determine which  user can restore a joke.
      */
     public function restore(User $user, Joke $joke): bool
     {
@@ -76,7 +97,6 @@ class JokePolicy
         }
 
 
-        // El personal puede restaurar cualquier chiste de clientes o de otros miembros del personal 
         if ($user->hasRole('Staff')) {
             return $joke->author->hasRole('Client') || $joke->author->hasRole('Staff');
         }
@@ -84,25 +104,26 @@ class JokePolicy
         return $user->id === $joke->author_id || $user->can('joke restore');
     }
 
+    /**
+     * Determine which  user can permanetly delete a  joke.
+     */
+
     public function forceDelete(User $user, Joke $joke): bool
     {
-        // Los clientes pueden eliminar permanentemente sus propios chistes eliminados
+
         if ($user->hasRole('Client')) {
             return $user->id === $joke->author_id;
         }
-    
-        // El personal puede eliminar permanentemente cualquier chiste eliminado por clientes
+
+
         if ($user->hasRole('Staff') && $joke->author->hasRole('Client') && $joke->trashed()) {
             return true;
         }
-    
-        // El personal puede eliminar permanentemente cualquier chiste eliminado por otros miembros del personal
+
         if ($user->hasRole('Staff') && $joke->author->hasRole('Staff') && $joke->trashed()) {
             return true;
         }
-    
-        // Los usuarios con el permiso 'joke forceDelete' también pueden eliminar chistes
+
         return $user->id === $joke->author_id || $user->can('joke forceDelete');
     }
-    
 }

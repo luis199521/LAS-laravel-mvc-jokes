@@ -1,6 +1,12 @@
 <?php
-
 /**
+ * Assessment Title: Portfolio Part 3
+ * Cluster:          SaaS: Part 1 – Front End Development 
+ * Qualification:    ICT50220 Diploma of Information Technology (Advanced Programming)
+ * Name:             Luis Alvarez Suarez
+ * Student ID:       20114831
+ * Year/Semester:    2024/S2
+ *
  * Jokes Model
  *
  * Provides Methods to handle Joke's data.
@@ -9,10 +15,11 @@
  * Location:        App/Models
  * Project:         LAS-LARAVEL-MVC-Jokes
  * Date Created:    27/10/2024
- *
+ * 
  * Author:          Luis Alvarez Suarez <20114831@tafe.wa.edu.au>
- *
  */
+
+
 
 namespace App\Models;
 

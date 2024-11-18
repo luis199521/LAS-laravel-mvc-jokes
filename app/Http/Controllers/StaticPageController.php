@@ -1,5 +1,13 @@
 <?php
+
 /**
+ * Assessment Title: Portfolio Part 3
+ * Cluster:          SaaS: Part 1 – Front End Development 
+ * Qualification:    ICT50220 Diploma of Information Technology (Advanced Programming)
+ * Name:             Luis Alvarez Suarez
+ * Student ID:       20114831
+ * Year/Semester:    2024/S2
+ *
  * Static Pages Managment
  *
  * Provides access to static pages such as home, contact and about pages.
@@ -24,13 +32,12 @@ use App\Http\Controllers\UserController;
 class StaticPageController extends Controller
 {
 
-     /*
+    /*
      * Show the Enhance Home Page for Authenticated Users.
-     *
-     * @return void
      */
 
-     public function index(){
+    public function index()
+    {
 
 
         $countJoke = new JokeController();
@@ -45,46 +52,37 @@ class StaticPageController extends Controller
             'totalJokes' => $countJokes,
             'totalUsers' => $countUsers
         ]);
-     }
+    }
 
     /*
      * Show the home static page when user logs in,  statistics  of number of users and jokes can be seen.
-     *
-     * @return void
      */
     public function home()
     {
 
-       $jokes = new JokeController();
-       $joke = $jokes->showRandomJoke();
-        return view('static.home',[
+        $jokes = new JokeController();
+        $joke = $jokes->showRandomJoke();
+        return view('static.home', [
             'jokes' => $joke
         ]);
     }
 
 
-     /*
+    /*
      * Show the about static page
-     *
-     * @return void
      */
     public function about()
     {
-       
+
         return view('static.about');
     }
 
     /*
      * Show contact form
-     *
-     * @return void
      */
     public function contact()
     {
-        //loadView('staticPages/about');
+
         return view('static.contact');
     }
-
-
-    
 }

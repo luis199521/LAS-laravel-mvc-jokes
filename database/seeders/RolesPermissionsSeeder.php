@@ -1,4 +1,26 @@
 <?php
+
+
+/**
+ * Assessment Title: Portfolio Part 3
+ * Cluster:          SaaS: Part 1 – Front End Development 
+ * Qualification:    ICT50220 Diploma of Information Technology (Advanced Programming)
+ * Name:             Luis Alvarez Suarez
+ * Student ID:       20114831
+ * Year/Semester:    2024/S2
+ *
+ * RolesPermissionsSeeder
+ *
+ * Creates Roles Permissions.
+ *
+ * Filename:        RolesPermissionsSeeder.php
+ * Location:        database/seeders
+ * Project:         LAS-LARAVEL-MVC-Jokes
+ * Date Created:    28/10/2024
+ *
+ * Author:          Luis Alvarez Suarez <20114831@tafe.wa.edu.au>
+ *
+ */
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
@@ -7,6 +29,9 @@ use Spatie\Permission\Models\Permission;
 
 class RolesPermissionsSeeder extends Seeder
 {
+    /**
+     * Run the seeder
+     */
     public function run()
     {
         $permissions = [

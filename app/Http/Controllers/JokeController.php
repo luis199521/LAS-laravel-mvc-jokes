@@ -1,7 +1,14 @@
 <?php
 
 /**
- * Joke Management Controller
+ * Assessment Title: Portfolio Part 3
+ * Cluster:          SaaS: Part 1 – Front End Development 
+ * Qualification:    ICT50220 Diploma of Information Technology (Advanced Programming)
+ * Name:             Luis Alvarez Suarez
+ * Student ID:       20114831
+ * Year/Semester:    2024/S2
+ *
+ *Joke Management Controller
  *
  * Provides access to Jokes pages.
  * 
@@ -11,8 +18,8 @@
  * Date Created:    29/09/2024
  *
  * Author:          Luis Alvarez <20114831@tafe.wa.edu.au>
- *
  */
+
 
 namespace App\Http\Controllers;
 
@@ -30,8 +37,8 @@ class JokeController extends Controller
 {
     use AuthorizesRequests;
 
-     /**
-     * Search users by keywords/location.
+    /**
+     * Get the number of jokes
      */
 
     public function numberJokes()
@@ -42,6 +49,10 @@ class JokeController extends Controller
         return $totalJokes;
     }
 
+
+    /**
+     * Displays Jokes home page
+     */
 
     public function index()
     {
@@ -59,7 +70,9 @@ class JokeController extends Controller
         ]);
     }
 
-
+    /**
+     * Displays a random joke
+     */
     public function showRandomJoke()
     {
 
@@ -79,7 +92,7 @@ class JokeController extends Controller
 
 
     /**
-     * Search users by keywords/location.
+     * Search jokes by keywords/location.
      */
     public function search(Request $request)
     {
@@ -112,6 +125,10 @@ class JokeController extends Controller
         }
     }
 
+    /**
+     * Show a single joke
+     *
+     */
 
     public function show($id)
     {
@@ -145,7 +162,6 @@ class JokeController extends Controller
 
     /**
      * Show the jokes create form
-     *
      */
     public function create()
     {
@@ -212,7 +228,6 @@ class JokeController extends Controller
      * Update a user
      */
 
-
     public function update(Request $request, Joke $joke)
     {
 
@@ -246,7 +261,7 @@ class JokeController extends Controller
 
 
     /**
-     * Delete a user
+     * Delete a Joke
      */
     public function destroy(Joke $joke)
     {
@@ -263,6 +278,10 @@ class JokeController extends Controller
     }
 
 
+    /**
+     * Get trashed jokes
+     */
+
     public function trashed()
     {
 
@@ -272,27 +291,32 @@ class JokeController extends Controller
     }
 
 
-
+    /**
+     * Restore trashed jokes
+     */
+    
     public function restore($id)
     {
         $joke = Joke::withTrashed()->findOrFail($id);
         $this->authorize('restore', $joke);
         $joke->restore();
-    
+
         Session::flash('success', 'Joke restored successfully.');
         return redirect()->route('jokes.home');
     }
-    
 
+
+    /**
+     * Permanently delele trashed jokes
+     */
     public function forceDelete($id)
     {
         $joke = Joke::withTrashed()->findOrFail($id);
         $this->authorize('forceDelete', $joke);
-    
+
         $joke->forceDelete();
-    
+
         Session::flash('success', 'Joke permanently deleted.');
         return redirect()->route('jokes.trashed');
     }
-    
 }

@@ -1,14 +1,21 @@
 <?php
 /**
- * Page Footer
- * 
+ * Assessment Title: Portfolio Part 3
+ * Cluster:          SaaS: Part 1 – Front End Development 
+ * Qualification:    ICT50220 Diploma of Information Technology (Advanced Programming)
+ * Name:             Luis Alvarez Suarez
+ * Student ID:       20114831
+ * Year/Semester:    2024/S2
+ *
  * Filename: footer.blade.php
  * Location: resources/views/partials
  * Project: LAS-LARAVEL-MVC-Jokes
  * Date Created: 28/09/2024
  *
  * Author: Luis Alvarez Suarez <20114831@tafe.wa.edu.au>
+ *
  */
+
 ?>
 <footer class="bg-black text-zinc-500 p-4 mt-8 flex flex-wrap flex-row text-sm">
     <section class="w-1/2 p-8 flex flex-col gap-2">

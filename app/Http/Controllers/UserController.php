@@ -1,5 +1,25 @@
 <?php
 
+/**
+ * Assessment Title: Portfolio Part 3
+ * Cluster:          SaaS: Part 1 – Front End Development 
+ * Qualification:    ICT50220 Diploma of Information Technology (Advanced Programming)
+ * Name:             Luis Alvarez Suarez
+ * Student ID:       20114831
+ * Year/Semester:    2024/S2
+ *
+ * User Management Controller
+ *
+ * Filename:        UserController.php
+ * Location:        /App/Http/Controllers
+ * Project:         LAS-Laravel-mvc-jokes
+ * Date Created:    27/10/2024
+ *
+ * Author:          Luis Alvarez <20114831@tafe.wa.edu.au>
+ *
+ *
+ */
+
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
@@ -19,33 +39,33 @@ class UserController extends Controller
 {
     use AuthorizesRequests;
 
+    /**
+     *Get all users and send them to the view.
+     */
     public function index()
     {
         $currentUser = Auth::user();
-        
-        // Obtener todos los usuarios si el usuario actual es superusuario o administrador
+
         if ($currentUser->hasRole(['Superuser', 'Administrator'])) {
             $users = User::all();
         } else {
-            // Obtener solo los usuarios relacionados con el usuario actual
             $users = User::where('user_id', $currentUser->id)
                 ->orWhere('id', $currentUser->id)
                 ->get();
         }
-    
-        // Autorizar la vista de cada usuario obtenido
+
         foreach ($users as $user) {
             $this->authorize('view', $user);
         }
-    
+
         return view('users.home', [
             'users' => $users
         ]);
     }
-    
 
-
-
+    /**
+     *Get number of users.
+     */
 
     public function numberUsers()
     {
@@ -75,6 +95,9 @@ class UserController extends Controller
         ]);
     }
 
+    /**
+     * Show a single user
+     */
 
     public function show($id)
     {
@@ -107,7 +130,6 @@ class UserController extends Controller
 
     /**
      * Show the user create form
-     *
      */
     public function create()
     {
@@ -187,66 +209,66 @@ class UserController extends Controller
      * Show the user edit form
      */
 
-     public function edit(User $user)
-     {
-         $this->authorize('update', $user);
-     
-         $roles = Role::where('name', '!=', 'Superuser')->get();
-     
-         return view('users.edit', [
-             'user' => $user,
-             'roles' => $roles
-         ]);
-     }
-     
+    public function edit(User $user)
+    {
+        $this->authorize('update', $user);
+
+        $roles = Role::where('name', '!=', 'Superuser')->get();
+
+        return view('users.edit', [
+            'user' => $user,
+            'roles' => $roles
+        ]);
+    }
+
 
 
     /**
      * Update a user
      */
 
-     public function update(Request $request, User $user)
-     {
-         $this->authorize('update', $user);
-     
-         $request->validate([
-             'given_name' => 'required|string',
-             'family_name' => 'required|string',
-             'nickname' => 'nullable|string',
-             'email' => 'required|email',
-             'password' => 'nullable|string|min:6|confirmed',
-             'role' => 'required|string'
-         ], [
-             'given_name.required' => 'Given name is required',
-             'family_name.required' => 'Family name is required',
-             'password.min' => 'Password must be at least 6 characters',
-             'password.confirmed' => 'Passwords do not match',
-             'role.required' => 'Role is required'
-         ]);
-     
-         $allowedFields = ['nickname', 'given_name', 'family_name', 'email'];
-         $updateValues = $request->only($allowedFields);
-     
-         if (empty($updateValues['nickname'])) {
-             $updateValues['nickname'] = $updateValues['given_name'];
-         }
-     
-         if ($request->password) {
-             $updateValues['password'] = Hash::make($request->password);
-         }
-     
-         $updateValues['updated_at'] = now();
-         $user->update($updateValues);
-     
-        
-         if ($request->role !== 'Superuser') {
-             $user->syncRoles($request->role);
-         }
-     
-         Session::flash('success', 'User updated successfully.');
-         return redirect()->route('users.show', $user);
-     }
-     
+    public function update(Request $request, User $user)
+    {
+        $this->authorize('update', $user);
+
+        $request->validate([
+            'given_name' => 'required|string',
+            'family_name' => 'required|string',
+            'nickname' => 'nullable|string',
+            'email' => 'required|email',
+            'password' => 'nullable|string|min:6|confirmed',
+            'role' => 'required|string'
+        ], [
+            'given_name.required' => 'Given name is required',
+            'family_name.required' => 'Family name is required',
+            'password.min' => 'Password must be at least 6 characters',
+            'password.confirmed' => 'Passwords do not match',
+            'role.required' => 'Role is required'
+        ]);
+
+        $allowedFields = ['nickname', 'given_name', 'family_name', 'email'];
+        $updateValues = $request->only($allowedFields);
+
+        if (empty($updateValues['nickname'])) {
+            $updateValues['nickname'] = $updateValues['given_name'];
+        }
+
+        if ($request->password) {
+            $updateValues['password'] = Hash::make($request->password);
+        }
+
+        $updateValues['updated_at'] = now();
+        $user->update($updateValues);
+
+
+        if ($request->role !== 'Superuser') {
+            $user->syncRoles($request->role);
+        }
+
+        Session::flash('success', 'User updated successfully.');
+        return redirect()->route('users.show', $user);
+    }
+
     /**
      * Delete a user
      */
@@ -265,12 +287,19 @@ class UserController extends Controller
     }
 
 
+    /**
+     * Get trashed users
+     */
+
     public function trashed()
     {
         $users = User::onlyTrashed()->get();
         return view('users.trashed', ['users' => $users]);
     }
 
+    /**
+     * Permanently delele trashed users
+     */
     public function forceDelete($id)
     {
         $user = User::withTrashed()->findOrFail($id);
@@ -280,6 +309,9 @@ class UserController extends Controller
         return redirect()->route('users.home')->with('success', 'User permanently deleted successfully.');
     }
 
+    /**
+     * Restore trashed users              
+     */
 
     public function restore($id)
     {
