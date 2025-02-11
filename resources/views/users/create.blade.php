@@ -82,14 +82,7 @@
                         </select>
                     </section>
 
-                    <section class="mb-4">
-                        <label for="UserID" class="mt-4 pb-1">User ID:</label>
-                        <input type="number" id="UserID"
-                               name="user_id" placeholder="User ID"
-                               class="w-full px-4 py-2 border border-b-zinc-300 rounded focus:outline-none"
-                               value="10" required />
-                    </section>
-
+        
                     <button type="submit"
                             class="w-full bg-green-500 hover:bg-green-600 text-white px-4 py-2 my-3 rounded focus:outline-none">
                         Save

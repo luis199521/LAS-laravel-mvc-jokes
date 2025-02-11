@@ -25,6 +25,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Joke;
+use App\Models\Category;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -165,50 +166,59 @@ class JokeController extends Controller
      */
     public function create()
     {
-        return view('jokes.create');
+        $categories = Category::all();
+
+        return view('jokes.create', [
+        'categories' => $categories
+        ]);
     }
 
     /**
      * Store Jokes in database
      */
 
-    public function store(Request $request)
-    {
+     public function store(Request $request)
+     {
 
-        $allowedFields = ['joke', 'category_id', 'tags', 'author_id'];
-
-
-        $validator = Validator::make($request->all(), [
-            'joke' => 'required|string|max:255',
-            'category_id' => 'required|integer',
-            'tags' => 'nullable|string',
-            'author_id' => 'required|integer|exists:users,id',
-        ], [
-            'joke.required' => 'joke  is required.',
-            'category_id.required' => 'category is required.',
-            'author_id.required' => 'Author ID is required.'
-        ]);
-
-
-        if ($validator->fails()) {
-            return redirect()->back()
-                ->withErrors($validator)
-                ->withInput();
-        }
-
-
-        $newJokeData = $request->only($allowedFields);
-        $newJokeData['author_id'] = Auth::id();
+    
+         $allowedFields = ['joke', 'tags', 'author_id']; 
+     
+         $validator = Validator::make($request->all(), [
+             'joke' => 'required|string|max:255',
+            'category_id' => 'required|integer|exists:categories,id',
+             'tags' => 'nullable|string',
+         ], [
+             'joke.required' => 'Joke is required.',
+             'category_id.required' => 'Category is required.',
+         ]);
+     
+         if ($validator->fails()) {
+             return redirect()->back()
+                 ->withErrors($validator)
+                 ->withInput();
+         }
+     
+        
+         $category = Category::find($request->category_id);
 
 
-        Joke::create($newJokeData);
-
-
-        Session::flash('success', 'Joke created successfully.');
-
-
-        return redirect()->route('jokes.home');
-    }
+     
+         if (!$category) {
+             return redirect()->back()->withErrors(['category_id' => 'Invalid category selected.'])->withInput();
+         }
+     
+         
+         $newJokeData = $request->only($allowedFields);
+         $newJokeData['category_id'] = $category->id; 
+         $newJokeData['author_id'] = Auth::id();
+     
+         Joke::create($newJokeData);
+     
+         Session::flash('success', 'Joke created successfully.');
+     
+         return redirect()->route('jokes.home');
+     }
+     
 
     /**
      * Show the user edit form
@@ -218,8 +228,13 @@ class JokeController extends Controller
 
 
         $this->authorize('update', $joke);
+        $categories = Category::all();
 
-        return view('jokes.edit', ['joke' => $joke]);
+        return view('jokes.edit',[
+            'joke' => $joke,
+            'categories' => $categories
+
+        ]);
     }
 
 
@@ -228,36 +243,54 @@ class JokeController extends Controller
      * Update a user
      */
 
-    public function update(Request $request, Joke $joke)
-    {
-
-        $this->authorize('update', $joke);
-
-
-        $request->validate([
-            'joke' => 'required|string|max:255',
-            'category_id' => 'nullable',
-            'tags' => 'nullable|string',
-        ], [
-            'joke_title.required' => 'Joke title is required',
-        ]);
-
-
-        $allowedFields = ['joke', 'category_id', 'tags'];
-        $updateValues = $request->only($allowedFields);
-        $updateValues['updated_at'] = now();
-
-
-        $joke->update($updateValues);
-
-
-
-        Session::flash('success', 'Joke updated successfully');
-
-
-        return redirect()->route('jokes.show', $joke->id);
-    }
-
+     public function update(Request $request, Joke $joke)
+     {
+         
+         $this->authorize('update', $joke);
+     
+       
+         $allowedFields = ['joke', 'tags', 'author_id']; 
+     
+         
+         $validator = Validator::make($request->all(), [
+             'joke' => 'required|string|max:255',
+             'category_id' => 'nullable|integer|exists:categories,id', 
+             'tags' => 'nullable|string',
+         ], [
+             'joke.required' => 'Joke is required.',
+             'category_id.required' => 'Category is required.',
+         ]);
+     
+         if ($validator->fails()) {
+             return redirect()->back()
+                 ->withErrors($validator)
+                 ->withInput();
+         }
+     
+         
+         $category = Category::find($request->category_id);
+     
+         
+         if (!$category && $request->category_id) {
+             return redirect()->back()->withErrors(['category_id' => 'Invalid category selected.'])->withInput();
+         }
+     
+         
+         $updateJokeData = $request->only($allowedFields);
+         
+         
+         $updateJokeData['category_id'] = $category ? $category->id : $joke->category_id;
+     
+         
+         $updateJokeData['updated_at'] = now();
+         $joke->update($updateJokeData);
+     
+         Session::flash('success', 'Joke updated successfully.');
+     
+         // Redirect to the joke show page
+         return redirect()->route('jokes.show', $joke->id);
+     }
+     
 
 
     /**

@@ -25,48 +25,52 @@
                 <form method="POST" action="{{ route('jokes.update', $joke->id) }}" id="jokeUpdateForm" novalidate>
                     @csrf
                     @method('PUT')
-
+                
                     <h2 class="text-2xl font-bold mb-6 text-left text-gray-500">
                         Joke Information
                     </h2>
-
+                
                     <section class="mb-4">
                         <label for="joke_title" class="mt-4 pb-1">Joke Title:</label>
                         <input type="text" placeholder="Joke Title"
                                id="joke" name="joke"
                                class="w-full px-4 py-2 border rounded focus:outline-none"
-                               value="{{ old('joke', $joke->joke) }}"/>
+                               value="{{ $joke->joke }}"/>
                     </section>
-
+                
                     <section class="mb-4">
                         <label for="Category" class="mt-4 pb-1">Category:</label>
-                        <input type="text" id="Category"
-                            name="category_id" placeholder="Category"
-                            class="w-full px-4 py-2 border border-b-zinc-300 rounded focus:outline-none"
-                            value="{{ old('category_id', $joke->category_id ?? '') }}" />
+                        <select id="category" name="category_id" class="w-full px-4 py-2 border border-b-zinc-300 rounded focus:outline-none" required>
+                            @foreach($categories as $category)
+                                <option value="{{ $category->id }}" 
+                                    @if($joke->category_id == $category->id) selected @endif>
+                                    {{ $category->category_name }}
+                                </option> 
+                            @endforeach
+                        </select>
                     </section>
-
+                
                     <section class="mb-4">
                         <label for="tags" class="mt-4 pb-1">Tags:</label>
                         <input type="text" placeholder="Tags"
                                id="tags" name="tags"
                                class="w-full px-4 py-2 border rounded focus:outline-none"
-                               value="{{ old('tags', $joke->tags) }}"/>
+                               value="{{ $joke->tags }}"/>
                     </section>
-
+                
                     @can('joke edit', $joke)
                         <button type="submit"
                                 class="w-full bg-green-500 hover:bg-green-600 text-white px-4 py-2 my-3 rounded focus:outline-none">
                             Save
                         </button>
                     @endcan
-
+                
                     <a href="{{ route('jokes.show', $joke->id) }}"
                        class="block text-center w-full bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded focus:outline-none">
                         Cancel
                     </a>
-
                 </form>
+                
             </section>
         </article>
     </main>
@@ -83,7 +87,7 @@
             spellChecker: false,
             autofocus: true,
             autosave: {
-                enabled: true,
+                enabled: false,
                 uniqueId: "joke",
                 delay: 1000,
             },

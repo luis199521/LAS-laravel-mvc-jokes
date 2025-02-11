@@ -47,4 +47,14 @@ class Joke extends Model
     {
         return $this->belongsTo(User::class, 'author_id');
     }
+
+     /**
+     * A joke belongs to a category
+     */
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
+
+
 }

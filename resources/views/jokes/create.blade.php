@@ -34,14 +34,17 @@
                             class="w-full px-4 py-2 border border-b-zinc-300 rounded focus:outline-none"
                             value="{{ old('joke', $joke['joke'] ?? '') }}" required />
                     </section>
-
-                    <section class="mb-4">
+                    
+                    <section class="mb-4"> 
                         <label for="Category" class="mt-4 pb-1">Category:</label>
-                        <input type="text" id="Category"
-                            name="category_id" placeholder="Category"
-                            class="w-full px-4 py-2 border border-b-zinc-300 rounded focus:outline-none"
-                            value="{{ old('category_id', $joke['category_id'] ?? '') }}" />
+                        <select id="category" name="category_id" class="w-full px-4 py-2 border border-b-zinc-300 rounded focus:outline-none" required>
+                            @foreach($categories as $category)
+                                <option value="{{ $category->id }}">{{ $category->category_name }} - {{ $category->id }}</option> 
+                            @endforeach
+                        </select>
                     </section>
+                    
+                    
 
                     <section class="mb-4">
                         <label for="Tags" class="mt-4 pb-1">Tags:</label>
@@ -50,15 +53,6 @@
                             class="w-full px-4 py-2 border border-b-zinc-300 rounded focus:outline-none"
                             value="{{ old('tags', $joke['tags'] ?? '') }}" />
                     </section>
-
-                    <section class="mb-4">
-                        <label for="author_id" class="mt-4 pb-1">Author:</label>
-                        <input type="text" id="author_id"
-                               name="author_id" placeholder="author"
-                               class="w-full px-4 py-2 border border-b-zinc-300 rounded focus:outline-none"
-                               value="{{ auth()->user()->id ?? '' }}" required />
-                    </section>
-
                     @can('joke add')
                         <button type="submit"
                             class="w-full bg-green-500 hover:bg-green-600 text-white px-4 py-2 my-3 rounded focus:outline-none">

@@ -8,6 +8,7 @@ use Illuminate\Database\Seeder;
 use Database\Seeders\JokesSeeder;
 use Database\Seeders\UserSeeder; 
 use Database\Seeders\RolesPermissionsSeeder;
+use Database\Seeders\CategorySeeder;
 
 
 class DatabaseSeeder extends Seeder
@@ -19,6 +20,7 @@ class DatabaseSeeder extends Seeder
     {
         $this->call(RolesPermissionsSeeder::class);
         $this->call(UserSeeder::class);
+        $this->call(CategorySeeder::class);
         $this->call(JokesSeeder::class);
     }
 }

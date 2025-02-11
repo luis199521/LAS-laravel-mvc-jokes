@@ -43,6 +43,9 @@ class StaticPageController extends Controller
         $countJoke = new JokeController();
         $countJokes = $countJoke->numberJokes();
 
+        $showJoke = new JokeController();
+        $showJokes = $showJoke->showRandomJoke();
+
         $countUser = new UserController();
         $countUsers = $countUser->numberUsers();
 
@@ -50,7 +53,9 @@ class StaticPageController extends Controller
 
         return view('auth.home', [
             'totalJokes' => $countJokes,
-            'totalUsers' => $countUsers
+            'totalUsers' => $countUsers,
+            'randomJoke' => $showJokes
+
         ]);
     }
 
